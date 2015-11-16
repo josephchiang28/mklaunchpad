@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+		<style type="text/css">
+			body {
+				background: black;
+				color: white;
+			}
+			.centered{
+			    text-align:center;
+			}
+			.row {
+				overflow: auto;
+			    clear: both;
+			    text-align: center;
+			}
+			.key {
+				background: gray;
+				margin: 10px;
+				padding: 10px;
+				font-size: 20px;
+				width: 50px;
+				height: 50px;
+				border-radius: 50px;
+				line-height: 50px;
+				text-align: center;
+				display: inline-block;			
+			}
+			#launchpad-div {
+				overflow: auto;
+				margin: auto;
+				width: 90%;
+			}
+		</style>
+		<title>MK Launchpad</title>
+	</head>
+
+	<body>
+		<h1 class="centered">Welcome to the MK Launchpad</h1>
+		<div class="cenetered" id="launchpad-div">
+			<!-- <div class="row">
+				<div class="key" id="1">1</div>
+				<div class="key" id="2">2</div>
+				<div class="key" id="3">3</div>
+				<div class="key" id="4">4</div>
+			</div>
+			<div class="row">
+				<div class="key" id="Q">Q</div>
+				<div class="key" id="W">W</div>
+				<div class="key" id="E">E</div>
+				<div class="key" id="R">R</div>
+			</div>
+			<div class="row">
+				<div class="key" id="A">A</div>
+				<div class="key" id="S">S</div>
+				<div class="key" id="D">D</div>
+				<div class="key" id="F">F</div>
+			</div>
+			<div class="row">
+				<div class="key" id="Z">Z</div>
+				<div class="key" id="X">X</div>
+				<div class="key" id="C">C</div>
+				<div class="key" id="V">V</div>
+			</div> -->
+		</div>
+		<div id="audio-container">
+		</div>
+	</body>
+	<script type="text/javascript">
+		var AUDIO_DIR = "./audio/";
+		var SUFFIX = ".wav";
+		var KEYS_PER_ROW = 4;
+		var KEYS = ["1", "2", "3", "4", "Q", "W", "E", "R", "A", "S", "D", "F", "Z", "X", "C", "V"];
+
+		function drawLaunchpad(){
+			var row = document.createElement("div");
+		    row.className = "row";
+			var i = 0;
+		    while (i < KEYS.length){
+		      	var key = KEYS[i];
+		      	var div = document.createElement("div");
+		      	div.className = "key";
+		      	div.id = key
+		      	div.innerHTML = key
+		      	row.appendChild(div);
+		      	i++;
+		    	if (i % KEYS_PER_ROW == 0){
+		      		$("#launchpad-div").append(row);
+		      		row = document.createElement("div");
+		      		row.className = "row";
+		    	}
+
+		      	a = document.createElement("audio");
+		      	$(a).addClass("audio");
+		      	$(a).attr("id", "audio-" + key);
+		      	$(a).attr("src", AUDIO_DIR + key + SUFFIX);
+		      	$("#audio-container").append(a);
+		    }
+	  	}
+
+		function colorKey(key, color){
+			$("#"+key).css("background-color", color); 
+		}
+
+		function startAudio(audioId){
+		  	audio = document.getElementById(audioId);
+		  	audio.play();
+		}
+		function stopAudio(audioId){
+		  	audio = document.getElementById(audioId);
+		  	audio.pause();
+    		audio.currentTime = 0;
+		}
+
+		function activateLaunchpad(){
+			$(document).keydown(function(e){
+			  	key = String.fromCharCode(e.keyCode);
+			  	if(KEYS.indexOf(key) != -1){
+			    	startAudio("audio-" + key);
+			    	colorKey(key, "silver");
+			  }
+			});
+			$(document).keyup(function(e){
+			  	key = String.fromCharCode(e.keyCode);
+			  	if(KEYS.indexOf(key) != -1){
+			    	stopAudio("audio-" + key);
+			    	colorKey(key, "gray");
+			  	}
+			});
+		}
+
+		$(document).ready(function(){
+			activateLaunchpad();
+			drawLaunchpad();
+		});
+	</script>
+</html>
