@@ -41,7 +41,7 @@
 			.ink {
 				display: block;
 				position: absolute;
-				background:rgba(255, 255, 255, 0.3);
+				background: rgba(255, 0, 255, 0.7);
 				border-radius: 100%;
 				-webkit-transform:scale(0);
 			   	-moz-transform:scale(0);
@@ -109,6 +109,13 @@
 		var SUFFIX = ".wav";
 		var KEYS_PER_ROW = 4;
 		var KEYS = ["1", "2", "3", "4", "Q", "W", "E", "R", "A", "S", "D", "F", "Z", "X", "C", "V"];
+		var keysDown = {}
+
+		function generateKeysDownDict(){
+			for (var i = 0; i < KEYS.length; i++) {
+				keysDown[KEYS[i]] = [false, Date.now()];
+			}
+		}
 
 		function drawLaunchpad(){
 			var row = document.createElement("div");
@@ -136,7 +143,7 @@
 		    }
 	  	}
 
-	  	function ripple(key) {
+	  	function ripple(key){
 	  		var keyDiv = $("#"+key);
 	  		if(keyDiv.find(".ink").length === 0){
 	  		    keyDiv.prepend("<span class='ink'></span>");
@@ -161,11 +168,11 @@
 		}
 
 		function startAudio(audioId){
-		  	audio = document.getElementById(audioId);
+		  	var audio = document.getElementById(audioId);
 		  	audio.play();
 		}
 		function stopAudio(audioId){
-		  	audio = document.getElementById(audioId);
+		  	var audio = document.getElementById(audioId);
 		  	audio.pause();
     		audio.currentTime = 0;
 		}
@@ -173,15 +180,25 @@
 		function activateLaunchpad(){
 			$(document).keydown(function(e){
 			  	key = String.fromCharCode(e.keyCode);
-			  	if(KEYS.indexOf(key) != -1){
+			  	if(Object.keys(keysDown).indexOf(key) != -1){
+			  		// console.log((Date.now() - keysDown[key][1]) / 1000);
+			  		if (!keysDown[key][0]) {
+			  			keysDown[key][0] = true;
+			  			keysDown[key][1] = Date.now();
+			    		colorKey(key, "silver");
+			    		ripple(key);
+			  		} else if ((Date.now() - keysDown[key][1]) / 1000 > 0.75) {
+			  			keysDown[key][1] = Date.now();
+			  			ripple(key);
+			  			console.log(key);
+			  		}
 			    	startAudio("audio-" + key);
-			    	colorKey(key, "silver");
-			    	ripple(key);
 			  }
 			});
 			$(document).keyup(function(e){
 			  	key = String.fromCharCode(e.keyCode);
-			  	if(KEYS.indexOf(key) != -1){
+			  	if(Object.keys(keysDown).indexOf(key) != -1){
+			  		keysDown[key][0] = false;
 			    	stopAudio("audio-" + key);
 			    	colorKey(key, "gray");
 			  	}
@@ -189,6 +206,7 @@
 		}
 
 		$(document).ready(function(){
+			generateKeysDownDict();
 			activateLaunchpad();
 			drawLaunchpad();
 		});
