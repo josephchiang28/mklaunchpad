@@ -109,7 +109,7 @@
 		var SUFFIX = ".wav";
 		var KEYS_PER_ROW = 4;
 		var KEYS = ["1", "2", "3", "4", "Q", "W", "E", "R", "A", "S", "D", "F", "Z", "X", "C", "V"];
-		var keysDown = {}
+		var keysDown = {};
 
 		function generateKeysDownDict(){
 			for (var i = 0; i < KEYS.length; i++) {
@@ -169,38 +169,45 @@
 
 		function startAudio(audioId){
 		  	var audio = document.getElementById(audioId);
+		  	audio.loop = true;
 		  	audio.play();
 		}
+
 		function stopAudio(audioId){
 		  	var audio = document.getElementById(audioId);
 		  	audio.pause();
     		audio.currentTime = 0;
 		}
 
+		function makeRipples(){
+			for (var key in keysDown){
+				if (keysDown[key][0] && (Date.now() - keysDown[key][1]) / 1000 > 0.75){
+					keysDown[key][1] = Date.now();
+					ripple(key);
+				}
+			}
+		}
+
 		function activateLaunchpad(){
 			$(document).keydown(function(e){
 			  	key = String.fromCharCode(e.keyCode);
 			  	if(Object.keys(keysDown).indexOf(key) != -1){
-			  		// console.log((Date.now() - keysDown[key][1]) / 1000);
 			  		if (!keysDown[key][0]) {
 			  			keysDown[key][0] = true;
 			  			keysDown[key][1] = Date.now();
 			    		colorKey(key, "silver");
 			    		ripple(key);
-			  		} else if ((Date.now() - keysDown[key][1]) / 1000 > 0.75) {
-			  			keysDown[key][1] = Date.now();
-			  			ripple(key);
-			  			console.log(key);
-			  		}
+			    	}
+			  		makeRipples();
 			    	startAudio("audio-" + key);
-			  }
+			    }
 			});
 			$(document).keyup(function(e){
 			  	key = String.fromCharCode(e.keyCode);
 			  	if(Object.keys(keysDown).indexOf(key) != -1){
 			  		keysDown[key][0] = false;
-			    	stopAudio("audio-" + key);
 			    	colorKey(key, "gray");
+			    	stopAudio("audio-" + key);
 			  	}
 			});
 		}
