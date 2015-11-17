@@ -25,12 +25,49 @@
 				border-radius: 50px;
 				line-height: 50px;
 				text-align: center;
-				display: inline-block;			
+				display: inline-block;
+				-webkit-transition: all 0.2s ease;
+				-moz-transition: all 0.2s ease;
+				-o-transition: all 0.2s ease;
+				transition: all 0.2s ease;
+				z-index:0;			
 			}
 			#launchpad-div {
 				overflow: auto;
 				margin: auto;
 				width: 90%;
+			}
+
+			.ink {
+				display: block;
+				position: absolute;
+				background:rgba(255, 255, 255, 0.3);
+				border-radius: 100%;
+				-webkit-transform:scale(0);
+			   	-moz-transform:scale(0);
+				-o-transform:scale(0);
+			    transform:scale(0);
+			}
+
+			.animate {
+				-webkit-animation:ripple 0.65s linear;
+			   	-moz-animation:ripple 0.65s linear;
+			    -ms-animation:ripple 0.65s linear;
+			    -o-animation:ripple 0.65s linear;
+			    animation:ripple 0.65s linear;
+			}
+
+			@-webkit-keyframes ripple {
+			    100% {opacity: 0; -webkit-transform: scale(2.5);}
+			}
+			@-moz-keyframes ripple {
+			    100% {opacity: 0; -moz-transform: scale(2.5);}
+			}
+			@-o-keyframes ripple {
+			    100% {opacity: 0; -o-transform: scale(2.5);}
+			}
+			@keyframes ripple {
+			    100% {opacity: 0; transform: scale(2.5);}
 			}
 		</style>
 		<title>MK Launchpad</title>
@@ -99,6 +136,26 @@
 		    }
 	  	}
 
+	  	function ripple(key) {
+	  		var keyDiv = $("#"+key);
+	  		if(keyDiv.find(".ink").length === 0){
+	  		    keyDiv.prepend("<span class='ink'></span>");
+	  		}
+
+	  		var ink = keyDiv.find(".ink");
+	  		ink.removeClass("animate");
+	  		 
+	  		if(!ink.height() && !ink.width()){
+	  		    d = Math.max(keyDiv.outerWidth(), keyDiv.outerHeight());
+	  		    ink.css({height: d, width: d});
+	  		}
+ 
+	  		var x = keyDiv.offset().left;
+	  		var y = keyDiv.offset().top;
+	  		 
+	  		ink.css({top: y+'px', left: x+'px'}).addClass("animate");
+	  	}
+
 		function colorKey(key, color){
 			$("#"+key).css("background-color", color); 
 		}
@@ -119,6 +176,7 @@
 			  	if(KEYS.indexOf(key) != -1){
 			    	startAudio("audio-" + key);
 			    	colorKey(key, "silver");
+			    	ripple(key);
 			  }
 			});
 			$(document).keyup(function(e){
